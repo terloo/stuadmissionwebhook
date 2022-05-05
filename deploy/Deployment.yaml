@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stuadmissionwebhook
+  namespace: stuadmissionwebhook
+  labels:
+    apps: stuadmissionwebhook
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      apps: stuadmissionwebhook
+  template:
+    metadata:
+      labels:
+        apps: stuadmissionwebhook
+    spec:
+      volumes:
+        - name: tls
+          secret:
+            secretName: servertls
+      containers:
+      - image: stuadmissionwebhook:v1
+        name: myapp
+        imagePullPolicy: Never
+        ports:
+        - name: appport
+          containerPort: 443
+        volumeMounts:
+          - name: tls
+            mountPath: /etc/pki
+            readOnly: true
+        command:
+        - ./stuadmissionwebhook
+        - --tls-crt-path=/etc/pki/tls.crt
+        - --tls-key-path=/etc/pki/tls.key
+        - --port=443
